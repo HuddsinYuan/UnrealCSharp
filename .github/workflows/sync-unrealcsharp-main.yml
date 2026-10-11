@@ -1,0 +1,35 @@
+name: Sync UnrealCSharp main from upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 22 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/sync-unrealcsharp-main.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-unrealcsharp-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'HuddsinYuan/UnrealCSharp'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify upstream and sync main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          upstream=$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.parent.full_name')
+          if [ "$upstream" != "crazytuzi/UnrealCSharp" ]; then
+            echo "::error::Unexpected upstream: $upstream"
+            exit 1
+          fi
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/merge-upstream" -f branch=main
