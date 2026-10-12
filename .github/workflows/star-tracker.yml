@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   track:
+    if: github.repository == 'crazytuzi/UnrealCSharp'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
